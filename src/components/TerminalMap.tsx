@@ -44,6 +44,15 @@ const TerminalMap = ({
 }: TerminalMapProps) => {
   const [currentPoint, setCurrentPoint] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
+
+  // Count facilities by type
+  const facilityCounts = {
+    gate: locations.filter(loc => loc.type === 'gate').length,
+    restaurant: locations.filter(loc => loc.type === 'restaurant').length,
+    shop: locations.filter(loc => loc.type === 'shop').length,
+    restroom: locations.filter(loc => loc.type === 'restroom').length,
+  };
 
   useEffect(() => {
     if (showAnimation && path && path.points.length > 0) {
@@ -103,9 +112,24 @@ const TerminalMap = ({
 
   return (
     <div className={cn("terminal-map relative w-full h-[600px]", className)}>
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <div className="bg-white px-3 py-1.5 rounded-lg shadow-sm border text-sm font-medium">
           {terminal.name} - Level {terminal.level}
+        </div>
+        
+        <div className="bg-white px-3 py-1.5 rounded-lg shadow-sm border text-xs grid grid-cols-2 gap-x-4 gap-y-1">
+          <div className="flex items-center">
+            <span className="mr-1">✈️</span> Gates: {facilityCounts.gate}
+          </div>
+          <div className="flex items-center">
+            <span className="mr-1">🍽️</span> Restaurants: {facilityCounts.restaurant}
+          </div>
+          <div className="flex items-center">
+            <span className="mr-1">🛍️</span> Shops: {facilityCounts.shop}
+          </div>
+          <div className="flex items-center">
+            <span className="mr-1">🚻</span> Restrooms: {facilityCounts.restroom}
+          </div>
         </div>
       </div>
       
@@ -149,34 +173,26 @@ const TerminalMap = ({
           const isActive = showAnimation ? index <= currentPoint : true;
           
           return (
-            <div key={`path-${index}`}>
-              <div
-                className={cn(
-                  "path-line transition-all duration-300",
-                  isActive ? "opacity-100" : "opacity-0"
-                )}
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                  width: `${length}%`,
-                  height: '4px',
-                  transform: `rotate(${angle}deg)`,
-                  transformOrigin: '0 50%',
-                  transition: 'opacity 0.5s ease'
-                }}
+            <g key={`path-${index}`}>
+              <line 
+                x1={`${point.x}%`} 
+                y1={`${point.y}%`} 
+                x2={`${nextPoint.x}%`} 
+                y2={`${nextPoint.y}%`} 
+                stroke="#3B82F6" 
+                strokeWidth="4" 
+                strokeLinecap="round"
+                strokeDasharray={isActive ? "none" : "5,5"}
+                opacity={isActive ? 1 : 0.5}
               />
-              <div
-                className={cn(
-                  "path-dot transition-all duration-300",
-                  isActive ? "opacity-100" : "opacity-0"
-                )}
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                  transition: 'opacity 0.5s ease'
-                }}
+              <circle 
+                cx={`${point.x}%`} 
+                cy={`${point.y}%`} 
+                r="4" 
+                fill="#3B82F6" 
+                opacity={isActive ? 1 : 0.5}
               />
-            </div>
+            </g>
           );
         })}
       </svg>
@@ -191,8 +207,16 @@ const TerminalMap = ({
             top: `${location.y}%`,
           }}
           title={location.name}
+          onMouseEnter={() => setShowTooltip(location.id)}
+          onMouseLeave={() => setShowTooltip(null)}
         >
           <span className="text-sm">{getIconForLocationType(location.type)}</span>
+          
+          {showTooltip === location.id && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-black bg-opacity-75 text-white text-xs py-1 px-2 rounded pointer-events-none whitespace-nowrap z-30">
+              {location.name}
+            </div>
+          )}
         </div>
       ))}
       

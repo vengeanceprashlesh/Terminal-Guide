@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, Plane, Clock, Info, ArrowLeft, Building, Navigation2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PageLayout from '@/components/PageLayout';
+import TerminalMap from '@/components/TerminalMap';
 
 interface Airport {
   id: string;
@@ -12,6 +13,9 @@ interface Airport {
   country: string;
   terminals: number;
   gates: number;
+  restaurants: number;
+  shops: number;
+  restrooms: number;
   description?: string;
 }
 
@@ -44,7 +48,10 @@ const mockAirports: Airport[] = [
     country: 'India',
     terminals: 3,
     gates: 67,
-    description: 'The primary international airport serving Delhi and the National Capital Region of India.'
+    restaurants: 24,
+    shops: 42,
+    restrooms: 36,
+    description: 'The primary international airport serving Delhi and the National Capital Region of India. Terminal 3 is one of the largest terminals in the world, with an area of over 5 million square feet.'
   },
   {
     id: 'bom',
@@ -54,7 +61,62 @@ const mockAirports: Airport[] = [
     country: 'India',
     terminals: 2,
     gates: 52,
-    description: 'The second busiest airport in India, serving the Mumbai Metropolitan Area.'
+    restaurants: 18,
+    shops: 35,
+    restrooms: 28,
+    description: 'The second busiest airport in India, serving the Mumbai Metropolitan Area. Terminal 2 is known for its art installations and modern architecture.'
+  },
+  {
+    id: 'blr',
+    name: 'Kempegowda International Airport',
+    code: 'BLR',
+    city: 'Bengaluru',
+    country: 'India',
+    terminals: 2,
+    gates: 48,
+    restaurants: 16,
+    shops: 32,
+    restrooms: 24,
+    description: 'Bengaluru\'s international airport connects to over 82 destinations across India and the world, making it a key gateway to South India.'
+  },
+  {
+    id: 'hyd',
+    name: 'Rajiv Gandhi International Airport',
+    code: 'HYD',
+    city: 'Hyderabad',
+    country: 'India',
+    terminals: 1,
+    gates: 38,
+    restaurants: 14,
+    shops: 26,
+    restrooms: 20,
+    description: 'A modern greenfield airport that serves Hyderabad and Telangana. It features a unique single integrated terminal for both domestic and international passengers.'
+  },
+  {
+    id: 'maa',
+    name: 'Chennai International Airport',
+    code: 'MAA',
+    city: 'Chennai',
+    country: 'India',
+    terminals: 2,
+    gates: 42,
+    restaurants: 12,
+    shops: 24,
+    restrooms: 18,
+    description: 'The main gateway to South India, Chennai International Airport handles flights to over 50 destinations around the world.'
+  },
+  {
+    id: 'ccu',
+    name: 'Netaji Subhas Chandra Bose International Airport',
+    code: 'CCU',
+    city: 'Kolkata',
+    country: 'India',
+    terminals: 2,
+    gates: 32,
+    restaurants: 10,
+    shops: 18,
+    restrooms: 14,
+    description: 'The largest airport in Eastern India, serving as a major hub for flights to Northeast India and Southeast Asia.'
   }
 ];
 
@@ -101,78 +163,148 @@ const mockFlights: Flight[] = [
   }
 ];
 
-const locationsList: Location[] = [
-  {
-    id: 'security-1',
-    name: 'Security Checkpoint 1',
-    type: 'security',
-    level: 1,
-    x: 150,
-    y: 100
+const terminalMapsData: Record<string, {
+  terminal: { id: string; name: string; level: number; };
+  locations: Location[];
+}> = {
+  del: {
+    terminal: { id: 'del-t3', name: 'Terminal 3', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint 1', type: 'security', level: 1, x: 15, y: 30 },
+      { id: 'security-2', name: 'Security Checkpoint 2', type: 'security', level: 1, x: 15, y: 70 },
+      { id: 'gate-a1', name: 'Gate A1', type: 'gate', level: 1, x: 25, y: 18 },
+      { id: 'gate-a2', name: 'Gate A2', type: 'gate', level: 1, x: 30, y: 18 },
+      { id: 'gate-a3', name: 'Gate A3', type: 'gate', level: 1, x: 35, y: 18 },
+      { id: 'gate-b1', name: 'Gate B1', type: 'gate', level: 1, x: 40, y: 18 },
+      { id: 'gate-b2', name: 'Gate B2', type: 'gate', level: 1, x: 45, y: 18 },
+      { id: 'rest-1', name: 'Food Court', type: 'restaurant', level: 1, x: 50, y: 50 },
+      { id: 'rest-2', name: 'Cafe Coffee Day', type: 'restaurant', level: 1, x: 60, y: 25 },
+      { id: 'rest-3', name: 'Subway', type: 'restaurant', level: 1, x: 70, y: 70 },
+      { id: 'rest-4', name: 'Punjab Grill', type: 'restaurant', level: 1, x: 75, y: 30 },
+      { id: 'shop-1', name: 'Duty Free Shop', type: 'shop', level: 1, x: 30, y: 40 },
+      { id: 'shop-2', name: 'WH Smith', type: 'shop', level: 1, x: 40, y: 60 },
+      { id: 'shop-3', name: 'Forest Essentials', type: 'shop', level: 1, x: 50, y: 75 },
+      { id: 'shop-4', name: 'Hidesign', type: 'shop', level: 1, x: 65, y: 45 },
+      { id: 'restroom-1', name: 'Restroom North', type: 'restroom', level: 1, x: 20, y: 35 },
+      { id: 'restroom-2', name: 'Restroom Central', type: 'restroom', level: 1, x: 50, y: 30 },
+      { id: 'restroom-3', name: 'Restroom South', type: 'restroom', level: 1, x: 80, y: 65 },
+      { id: 'baggage-1', name: 'Baggage Claim 1', type: 'baggage', level: 0, x: 18, y: 80 },
+      { id: 'baggage-2', name: 'Baggage Claim 2', type: 'baggage', level: 0, x: 28, y: 80 },
+      { id: 'entrance-1', name: 'Terminal Entrance', type: 'entrance', level: 0, x: 12, y: 50 },
+      { id: 'exit-1', name: 'Terminal Exit', type: 'exit', level: 0, x: 88, y: 50 }
+    ]
   },
-  {
-    id: 'gate-a1',
-    name: 'Gate A1',
-    type: 'gate',
-    level: 1,
-    x: 250,
-    y: 180
+  bom: {
+    terminal: { id: 'bom-t2', name: 'Terminal 2', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint 1', type: 'security', level: 1, x: 20, y: 35 },
+      { id: 'gate-c1', name: 'Gate C1', type: 'gate', level: 1, x: 30, y: 20 },
+      { id: 'gate-c2', name: 'Gate C2', type: 'gate', level: 1, x: 35, y: 20 },
+      { id: 'gate-c3', name: 'Gate C3', type: 'gate', level: 1, x: 40, y: 20 },
+      { id: 'gate-d1', name: 'Gate D1', type: 'gate', level: 1, x: 50, y: 20 },
+      { id: 'rest-1', name: 'Starbucks', type: 'restaurant', level: 1, x: 45, y: 45 },
+      { id: 'rest-2', name: 'KFC', type: 'restaurant', level: 1, x: 55, y: 35 },
+      { id: 'rest-3', name: 'Mumbai Bistro', type: 'restaurant', level: 1, x: 65, y: 60 },
+      { id: 'shop-1', name: 'Duty Free', type: 'shop', level: 1, x: 35, y: 45 },
+      { id: 'shop-2', name: 'Shoppers Stop', type: 'shop', level: 1, x: 60, y: 40 },
+      { id: 'restroom-1', name: 'Restroom East', type: 'restroom', level: 1, x: 25, y: 50 },
+      { id: 'restroom-2', name: 'Restroom West', type: 'restroom', level: 1, x: 70, y: 50 },
+      { id: 'baggage-1', name: 'Baggage Claim', type: 'baggage', level: 0, x: 25, y: 75 },
+      { id: 'entrance-1', name: 'Entrance', type: 'entrance', level: 0, x: 15, y: 50 },
+      { id: 'exit-1', name: 'Exit', type: 'exit', level: 0, x: 85, y: 50 }
+    ]
   },
-  {
-    id: 'restaurant-1',
-    name: 'Food Court',
-    type: 'restaurant',
-    level: 1,
-    x: 350,
-    y: 120
+  blr: {
+    terminal: { id: 'blr-t1', name: 'Terminal 1', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint', type: 'security', level: 1, x: 20, y: 40 },
+      { id: 'gate-a1', name: 'Gate A1', type: 'gate', level: 1, x: 35, y: 15 },
+      { id: 'gate-a2', name: 'Gate A2', type: 'gate', level: 1, x: 40, y: 15 },
+      { id: 'gate-a3', name: 'Gate A3', type: 'gate', level: 1, x: 45, y: 15 },
+      { id: 'gate-a4', name: 'Gate A4', type: 'gate', level: 1, x: 50, y: 15 },
+      { id: 'rest-1', name: 'Tiffin Express', type: 'restaurant', level: 1, x: 45, y: 40 },
+      { id: 'rest-2', name: 'Costa Coffee', type: 'restaurant', level: 1, x: 55, y: 35 },
+      { id: 'shop-1', name: 'Crossword', type: 'shop', level: 1, x: 35, y: 50 },
+      { id: 'shop-2', name: 'FabIndia', type: 'shop', level: 1, x: 60, y: 45 },
+      { id: 'restroom-1', name: 'Restroom', type: 'restroom', level: 1, x: 30, y: 60 },
+      { id: 'restroom-2', name: 'Restroom', type: 'restroom', level: 1, x: 65, y: 60 },
+      { id: 'baggage-1', name: 'Baggage Claim', type: 'baggage', level: 0, x: 30, y: 80 },
+      { id: 'entrance-1', name: 'Entrance', type: 'entrance', level: 0, x: 15, y: 50 },
+      { id: 'exit-1', name: 'Exit', type: 'exit', level: 0, x: 85, y: 50 }
+    ]
   },
-  {
-    id: 'restroom-1',
-    name: 'Restroom',
-    type: 'restroom',
-    level: 1,
-    x: 200,
-    y: 220
+  hyd: {
+    terminal: { id: 'hyd-t1', name: 'Terminal', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint', type: 'security', level: 1, x: 25, y: 35 },
+      { id: 'gate-a1', name: 'Gate A1', type: 'gate', level: 1, x: 35, y: 20 },
+      { id: 'gate-a2', name: 'Gate A2', type: 'gate', level: 1, x: 40, y: 20 },
+      { id: 'gate-a3', name: 'Gate A3', type: 'gate', level: 1, x: 45, y: 20 },
+      { id: 'rest-1', name: 'Paradise Biryani', type: 'restaurant', level: 1, x: 50, y: 40 },
+      { id: 'rest-2', name: 'Barista', type: 'restaurant', level: 1, x: 60, y: 45 },
+      { id: 'shop-1', name: 'Hyderabad Pearls', type: 'shop', level: 1, x: 40, y: 50 },
+      { id: 'shop-2', name: 'Forest Essentials', type: 'shop', level: 1, x: 55, y: 55 },
+      { id: 'restroom-1', name: 'Restroom', type: 'restroom', level: 1, x: 35, y: 60 },
+      { id: 'restroom-2', name: 'Restroom', type: 'restroom', level: 1, x: 65, y: 60 },
+      { id: 'baggage-1', name: 'Baggage Claim', type: 'baggage', level: 0, x: 40, y: 80 },
+      { id: 'entrance-1', name: 'Entrance', type: 'entrance', level: 0, x: 20, y: 50 },
+      { id: 'exit-1', name: 'Exit', type: 'exit', level: 0, x: 80, y: 50 }
+    ]
   },
-  {
-    id: 'shop-1',
-    name: 'Duty Free Shop',
-    type: 'shop',
-    level: 1,
-    x: 300,
-    y: 250
+  maa: {
+    terminal: { id: 'maa-t1', name: 'Terminal 1', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint', type: 'security', level: 1, x: 20, y: 35 },
+      { id: 'gate-a1', name: 'Gate A1', type: 'gate', level: 1, x: 30, y: 20 },
+      { id: 'gate-a2', name: 'Gate A2', type: 'gate', level: 1, x: 35, y: 20 },
+      { id: 'gate-a3', name: 'Gate A3', type: 'gate', level: 1, x: 40, y: 20 },
+      { id: 'rest-1', name: 'Madras Cafe', type: 'restaurant', level: 1, x: 45, y: 40 },
+      { id: 'rest-2', name: 'Domino\'s Pizza', type: 'restaurant', level: 1, x: 55, y: 45 },
+      { id: 'shop-1', name: 'Chennai Silks', type: 'shop', level: 1, x: 35, y: 50 },
+      { id: 'shop-2', name: 'Landmark', type: 'shop', level: 1, x: 60, y: 50 },
+      { id: 'restroom-1', name: 'Restroom', type: 'restroom', level: 1, x: 30, y: 60 },
+      { id: 'restroom-2', name: 'Restroom', type: 'restroom', level: 1, x: 65, y: 60 },
+      { id: 'baggage-1', name: 'Baggage Claim', type: 'baggage', level: 0, x: 40, y: 80 },
+      { id: 'entrance-1', name: 'Entrance', type: 'entrance', level: 0, x: 15, y: 50 },
+      { id: 'exit-1', name: 'Exit', type: 'exit', level: 0, x: 85, y: 50 }
+    ]
   },
-  {
-    id: 'baggage-1',
-    name: 'Baggage Claim 1',
-    type: 'baggage',
-    level: 0,
-    x: 180,
-    y: 320
-  },
-  {
-    id: 'entrance-1',
-    name: 'Terminal Entrance',
-    type: 'entrance',
-    level: 0,
-    x: 120,
-    y: 380
+  ccu: {
+    terminal: { id: 'ccu-t2', name: 'Terminal 2', level: 1 },
+    locations: [
+      { id: 'security-1', name: 'Security Checkpoint', type: 'security', level: 1, x: 25, y: 35 },
+      { id: 'gate-a1', name: 'Gate A1', type: 'gate', level: 1, x: 35, y: 20 },
+      { id: 'gate-a2', name: 'Gate A2', type: 'gate', level: 1, x: 40, y: 20 },
+      { id: 'gate-a3', name: 'Gate A3', type: 'gate', level: 1, x: 45, y: 20 },
+      { id: 'rest-1', name: 'Bengali Cuisine', type: 'restaurant', level: 1, x: 50, y: 45 },
+      { id: 'rest-2', name: 'Cafe Coffee Day', type: 'restaurant', level: 1, x: 60, y: 50 },
+      { id: 'shop-1', name: 'Kolkata Handicrafts', type: 'shop', level: 1, x: 40, y: 55 },
+      { id: 'shop-2', name: 'WH Smith', type: 'shop', level: 1, x: 55, y: 60 },
+      { id: 'restroom-1', name: 'Restroom', type: 'restroom', level: 1, x: 35, y: 65 },
+      { id: 'restroom-2', name: 'Restroom', type: 'restroom', level: 1, x: 65, y: 65 },
+      { id: 'baggage-1', name: 'Baggage Claim', type: 'baggage', level: 0, x: 45, y: 80 },
+      { id: 'entrance-1', name: 'Entrance', type: 'entrance', level: 0, x: 20, y: 50 },
+      { id: 'exit-1', name: 'Exit', type: 'exit', level: 0, x: 80, y: 50 }
+    ]
   }
-];
+};
 
 const AirportDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [airport, setAirport] = useState<Airport | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'flights' | 'map'>('info');
+  const [terminalMapData, setTerminalMapData] = useState<{terminal: {id: string; name: string; level: number}; locations: Location[]} | null>(null);
   
   useEffect(() => {
-    // In a real app, fetch airport data from API
     const foundAirport = mockAirports.find(a => a.id === id);
     setAirport(foundAirport || null);
     
-    // Filter flights for this airport
     setFlights(mockFlights);
+    
+    if (id && terminalMapsData[id]) {
+      setTerminalMapData(terminalMapsData[id]);
+    }
   }, [id]);
   
   if (!airport) {
@@ -346,6 +478,18 @@ const AirportDetail = () => {
                   <ul className="space-y-2">
                     <li className="flex items-center">
                       <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      {airport.restaurants} Restaurants & Cafes
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      {airport.shops} Retail Shops
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      {airport.restrooms} Restrooms
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                       Free WiFi throughout the terminal
                     </li>
                     <li className="flex items-center">
@@ -452,61 +596,40 @@ const AirportDetail = () => {
             </div>
             
             <div className="p-6">
-              <div className="relative w-full h-[400px] bg-muted/20 rounded-lg overflow-hidden border">
-                <div className="absolute inset-0 p-4">
-                  <div className="text-center text-muted-foreground">
-                    Interactive map would be displayed here
-                  </div>
-                  
-                  {/* This would be replaced with an actual map component */}
-                  <div className="absolute inset-0">
-                    {locationsList.map((location) => (
-                      <div 
-                        key={location.id}
-                        className="absolute w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-                        style={{ 
-                          left: `${location.x}px`, 
-                          top: `${location.y}px`,
-                          zIndex: location.level + 10
-                        }}
-                        title={location.name}
-                      >
-                        {location.type === 'gate' && <Plane className="h-3 w-3 text-blue-600" />}
-                        {location.type === 'restaurant' && <span className="text-amber-600 text-xs">🍽️</span>}
-                        {location.type === 'shop' && <span className="text-green-600 text-xs">🛍️</span>}
-                        {location.type === 'restroom' && <span className="text-purple-600 text-xs">🚻</span>}
-                        {location.type === 'security' && <span className="text-red-600 text-xs">🔒</span>}
-                        {location.type === 'baggage' && <span className="text-gray-600 text-xs">🧳</span>}
-                        {location.type === 'entrance' && <span className="text-green-600 text-xs">➡️</span>}
-                        {location.type === 'exit' && <span className="text-red-600 text-xs">⬅️</span>}
-                      </div>
-                    ))}
-                  </div>
+              {terminalMapData ? (
+                <TerminalMap 
+                  terminal={terminalMapData.terminal} 
+                  locations={terminalMapData.locations} 
+                  className="border rounded-lg overflow-hidden"
+                />
+              ) : (
+                <div className="text-center text-muted-foreground py-12">
+                  Terminal map not available for this airport
                 </div>
-              </div>
+              )}
               
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div className="flex items-center">
                   <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center mr-2">
-                    <Plane className="h-2 w-2 text-blue-600" />
+                    <span className="text-[8px]">✈️</span>
                   </div>
                   <span className="text-sm">Gates</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center mr-2">
-                    <span className="text-amber-600 text-[8px]">🍽️</span>
+                    <span className="text-[8px]">🍽️</span>
                   </div>
                   <span className="text-sm">Restaurants</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center mr-2">
-                    <span className="text-green-600 text-[8px]">🛍️</span>
+                    <span className="text-[8px]">🛍️</span>
                   </div>
                   <span className="text-sm">Shops</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center mr-2">
-                    <span className="text-purple-600 text-[8px]">🚻</span>
+                    <span className="text-[8px]">🚻</span>
                   </div>
                   <span className="text-sm">Restrooms</span>
                 </div>
