@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Luggage, Plus, X, QrCode, Plane, ArrowRight, Clock } from 'lucide-react';
+import { Luggage as LuggageIcon, Plus, X, QrCode, Plane, ArrowRight, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PageLayout from '@/components/PageLayout';
 import LuggageTracker, { LuggageItem } from '@/components/LuggageTracker';
@@ -154,7 +154,7 @@ const Luggage = () => {
             <div className="rounded-lg border p-5 bg-blue-50 border-blue-100">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Luggage className="h-5 w-5 text-app-blue" />
+                  <LuggageIcon className="h-5 w-5 text-app-blue" />
                 </div>
                 <div className="ml-3">
                   <h3 className="font-medium">Total Bags</h3>
@@ -211,7 +211,7 @@ const Luggage = () => {
         ) : (
           <div className="rounded-xl border p-8 bg-card text-center">
             <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
-              <Luggage className="h-8 w-8 text-muted-foreground" />
+              <LuggageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-semibold mb-2">No Luggage Found</h2>
             <p className="text-muted-foreground mb-6">
