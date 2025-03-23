@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 100% 50%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -32,22 +33,15 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -96,6 +90,98 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
   }
 }
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-md;
+  }
+  
+  .nav-item {
+    @apply relative w-full px-4 py-3 flex items-center gap-3 rounded-lg text-sm font-medium transition-all;
+  }
+  
+  .nav-item-active {
+    @apply bg-app-blue/10 text-app-blue;
+  }
+  
+  .nav-item-inactive {
+    @apply hover:bg-secondary text-muted-foreground hover:text-foreground;
+  }
+  
+  .airport-card {
+    @apply relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md;
+  }
+  
+  .airport-card-featured {
+    @apply relative overflow-hidden rounded-xl border-2 border-app-blue/30 bg-card p-6 shadow-md;
+  }
+  
+  .terminal-map {
+    @apply rounded-xl border p-1 bg-app-terminal;
+  }
+  
+  .path-dot {
+    @apply absolute w-2 h-2 rounded-full bg-app-blue;
+  }
+  
+  .path-line {
+    @apply absolute bg-app-blue/50 transform origin-left;
+  }
+  
+  .luggage-tag {
+    @apply relative px-4 py-3 rounded-lg border bg-white flex items-center gap-3 shadow-sm;
+  }
+  
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  
+  .status-dot-success {
+    @apply bg-green-500;
+  }
+  
+  .status-dot-warning {
+    @apply bg-yellow-500;
+  }
+  
+  .status-dot-error {
+    @apply bg-red-500;
+  }
+  
+  .status-dot-info {
+    @apply bg-app-blue;
+  }
+}
+
+.staggered-fade-in > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: staggered-fade-in 0.5s ease forwards;
+}
+
+@keyframes staggered-fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.staggered-fade-in > *:nth-child(1) { animation-delay: 0.1s; }
+.staggered-fade-in > *:nth-child(2) { animation-delay: 0.2s; }
+.staggered-fade-in > *:nth-child(3) { animation-delay: 0.3s; }
+.staggered-fade-in > *:nth-child(4) { animation-delay: 0.4s; }
+.staggered-fade-in > *:nth-child(5) { animation-delay: 0.5s; }
+.staggered-fade-in > *:nth-child(6) { animation-delay: 0.6s; }
+.staggered-fade-in > *:nth-child(7) { animation-delay: 0.7s; }
+.staggered-fade-in > *:nth-child(8) { animation-delay: 0.8s; }
+.staggered-fade-in > *:nth-child(9) { animation-delay: 0.9s; }
+.staggered-fade-in > *:nth-child(10) { animation-delay: 1.0s; }
